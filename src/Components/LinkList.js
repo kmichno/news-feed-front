@@ -104,7 +104,7 @@ class LinkList extends Component {
                 <div className="link-details" key={link.id}>
                     <div className="title">
                         <h3>{link.title}</h3>
-                        <a href={`http://localhost:8080/${link.shortUrl}`} className="short-url">localhost:8080/{link.shortUrl}</a>
+                        <a href={`http://localhost:8080/${link.shortUrl}`} target="_blank" className="short-url">localhost:8080/{link.shortUrl}</a>
                     </div>
                     <div className="description-content">
                         <div className="number-entries">
