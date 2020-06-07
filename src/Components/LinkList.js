@@ -7,7 +7,7 @@ class LinkList extends Component {
     constructor() {
         super();
         this.state = {
-            linksList: [""],
+            linksList: [],
             title: "",
             longUrl: "",
         };
@@ -35,14 +35,21 @@ class LinkList extends Component {
     }
 
     deleteLink(idLink) {
-        const url = "http://localhost:8080/link/delete/"+idLink;
+        const url = "http://localhost:8082/link/delete/"+idLink;
         fetch(url, {
-            method: 'DELETE',
+          mode: 'cors',
+            method: 'POST',
             headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin':'http://localhost:3001',
             },
-        });
+        }).then(results => {
+          console.log(results);
+          return results.json();
+        }).then(results => {
+          console.log(results);
+        })
     }
 
     handleDelete (idLink) {
@@ -74,8 +81,14 @@ class LinkList extends Component {
         }).then(results => results.json())
         .then((body)=>{
                 console.log(body.link);
-                let filteredArray = this.state.linksList;
-                filteredArray.unshift(body.link);
+                let filteredArray = [];
+                if(Array.isArray(this.state.linksList) && this.state.linksList.length) {
+                  filteredArray = this.state.linksList;
+                  filteredArray.unshift(body.link);
+                } else {
+                  console.log(body.link);
+                  filteredArray.push(body.link);
+                }
                 this.setState({linksList: filteredArray})
         })
     }
@@ -99,25 +112,29 @@ class LinkList extends Component {
     }
 
     render() {
-        let links = this.state.linksList.map((link) => {
-            return (
-                <div className="link-details" key={link.id}>
-                    <div className="title">
-                        <h3>{link.title}</h3>
-                        <a href={`http://localhost:8080/${link.shortUrl}`} target="_blank" className="short-url">localhost:8080/{link.shortUrl}</a>
-                    </div>
-                    <div className="description-content">
-                        <div className="number-entries">
-                            <p>Ilość unikalnych kliknięć: {link.numberUniqueEntries}</p>
-                        </div>
-                        <div className="place-button">
-                            <div className="button-blue" onClick={this.handleDelete(link.id)}>Usuń</div>
-                            <NavLink className="button-blue" to={`/admin/apartment/edit/${link.id}`}>Edytuj</NavLink>
-                        </div>
-                    </div>
+      let links
+      if(Array.isArray(this.state.linksList) && this.state.linksList.length) {
+        links = this.state.linksList.map((link) => {
+          console.log(link);
+          return (
+            <div className="link-details" key={link.id}>
+              <div className="title">
+                <h3>{link.title}</h3>
+                <a href={`http://localhost:8080/${link.shortUrl}`} target="_blank" className="short-url">localhost:8080/{link.shortUrl}</a>
+              </div>
+              <div className="description-content">
+                <div className="number-entries">
+                  <p>Ilość kliknięć w link: {link.numberAllEntries}</p>
                 </div>
-            )
+                <div className="place-button">
+                  <div className="button-blue" onClick={this.handleDelete(link.id)}>Usuń</div>
+                  <NavLink className="button-blue" to={`/link/edit/${link.id}`}>Edytuj</NavLink>
+                </div>
+              </div>
+            </div>
+          )
         });
+      }
         return (
             <React.Fragment>
                 <div id="container">
